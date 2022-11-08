@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  mssqlserver:
+    container_name: mssqlserver
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "bigPassword123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    
+  infosoft-server:
+    container_name: infosoft-server
+    build:
+      context: .
+      dockerfile: InfoSoft/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123456
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/cert.pfx
+    volumes:
+      - ./:/https:ro
+    depends_on:
+      - mssqlserver
